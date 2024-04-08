@@ -1,0 +1,265 @@
+---
+title: "Homework 4: Submission 1"
+subtitle: "Research Methods, Spring 2024"
+author: Leila Mulveny
+format:
+  pdf:
+    output-file: "mulveny-l-hwk4-1"
+    output-ext:  "pdf"
+    header-includes:
+      - \usepackage{float}
+      - \floatplacement{table}{H}
+      - \usepackage{hyperref}
+abstract: |
+  \href{https://github.com/LMULVEN/Homework4}{Homework 4: Repository} 
+---
+
+```{r}
+#| include: false
+
+if (!require("pacman")) install.packages("pacman")
+packages <- c("tidyverse", "ggplot2", "dplyr", "lubridate", "stringr", "readxl", "data.table", "gdata", "fixest", "knitr", "modelsummary", "AER", "here", "rddensity", "rdd")
+
+
+```
+
+```{r}
+#| include: false
+#| eval: true
+load("Hwk4_workspace.Rdata")
+```
+
+\newpage
+# Summarize The Data
+
+\vspace{.2in}
+\noindent 1. Remove all SNPs, 800-series plans, and prescription drug only plans (i.e., plans that do not offer Part C benefits). Provide a box and whisker plot showing the distribution of plan counts by county over time. Do you think that the number of plans is sufficient, too few, or too many?<br>
+
+
+See @fig-box:
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-box
+#| fig-cap: "Distribution of Plan Counts by County Over Time"
+
+question1
+```
+
+ @fig-box shows that the distribution of plan counts by country varies overtime. There seems to be a spread between counties with a higher number of plans (possibly outliers) and counties with a lower number of plans. For example, in the year 2014, some counties have over 20 plans, while some have closer to 5 plans. I would want to remove some of these outliers or adjust the y-axis to see the distribution of plan counts more closely and then determine if the number of plans is sufficient. 
+
+
+\newpage
+\noindent 2. Provide bar graphs showing the distribution of star ratings in 2010, 2012, and 2015. How has this distribution changed over time?<br>
+
+
+See @fig-bar:
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-bar
+#| fig-cap: "The Distribution of Star Ratings in 2010, 2012, and 2015"
+
+question2
+```
+
+@fig-bar displays a slight shift towards higher star ratings over time. In 2010, the distribution appears more even across all star ratings (1 to 5), with a mode around 3 stars. In 2015, there are more ratings of 4 and 5 stars than ever before. The bars for 1 and 2 star ratings decrease in height across the years, which reinforces the observation about a shift towards higher ratings.
+
+
+
+\newpage
+\noindent 3. Plot the average benchmark payment over time from 2010 through 2015. How much has the average benchmark payment risen over the years?<br>
+
+
+See @fig-ave-bench:
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-ave-bench
+#| fig-cap: "The Average Benchmark Payment Over Time From 2010 Through 2015"
+
+question3
+```
+
+@fig-ave-bench shows that the average benchmark payment has risen by approximately 20% between 2010 and 2015.
+
+
+\newpage
+\noindent 4. Plot the average share of Medicare Advantage (relative to all Medicare eligibles) over time from 2010 through 2015. Has Medicare Advantage increased or decreased in popularity? How does this share correlate with benchmark payments?<br>
+
+See @fig-MA:
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-MA
+#| fig-cap: "The Average Share of Medicare Advantage (relative to all Medicare eligibles) Over Time From 2010 Through 2015"
+
+question4
+```
+
+@fig-MA shows that the average share of Medicare Advantage enrollees (relative to all Medicare eligibles) has increased in popularity over time from 2010 to 2015. This coincides with the increase in average benchmark payments over the same period. @fig-MA suggests a possible correlation between the rise in benchmark payments and the growing popularity of Medicare Advantage plans. Higher benchmark payments could incentivize insurers to offer more attractive Medicare Advantage plans, potentially leading to increased enrollment. However, other factors could also be influencing the popularity of Medicare Advantage plans.
+
+
+
+\newpage
+# Estimate ATEs
+For the rest of the assignment, we’ll use a regression discontinuity design to estimate the average treatment effect from receiving a marginally higher rating. We’ll focus only on 2010.
+
+
+
+\newpage
+\noindent 5.Calculate the running variable underlying the star rating. Provide a table showing the number of plans that are rounded up into a 3-star, 3.5-star, 4-star, 4.5-star, and 5-star rating.<br>
+
+
+
+```{r}
+#| echo: false
+#| tbl-cap: "Number of Plans Rounded Up Into a 3-star, 3.5-star, 4-star, 4.5-star, and 5-star Rating"
+
+# Install and load the 'knitr' package
+if (!require("knitr")) install.packages("knitr")
+library(knitr)
+
+kable(star_rating_counts, caption = "Number of Plans Rounded Up Into a 3-star, 3.5-star, 4-star, 4.5-star, and 5-star Rating")
+```
+
+
+
+\newpage
+\noindent 6. Using the RD estimator with a bandwidth of 0.125, provide an estimate of the effect of receiving a 3-star versus a 2.5 star rating on enrollments. Repeat the exercise to estimate the effects at 3.5 stars, and summarize your results in a table.<br>
+
+
+**Table 2**
+```{r}
+#| echo: false
+#| tbl-cap: "RD Estimator With a Bandwidth of 0.125, Provide an Estimate of the Effect of Receiving a 3-star Versus a 2.5 Star Rating on Enrollments"
+
+summary(est3)
+
+```
+
+
+\newpage
+**Table 3**
+```{r}
+#| echo: false
+#| tbl-cap: "RD Estimator With a Bandwidth of 0.125, Provide an Estimate of the Effect of Receiving a 3.5-star Versus a 3 Star Rating on Enrollments"
+
+summary(est35)
+
+```
+
+
+
+\newpage
+\noindent 7. Repeat your results for bandwidhts of 0.1, 0.12, 0.13, 0.14, and 0.15 (again for 3 and 3.5 stars). Show all of the results in a graph. How sensitive are your findings to the choice of bandwidth?<br>
+
+
+@fig-band
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-band
+#| fig-cap: "Regression Output of Log(Sales) on Log(Prices) with Cigarette Tax as an Instrumental Variable"
+
+print(Q7)
+
+```
+
+
+@fig-band shows that the RD estimate for the effect of a 3-star rating compared to a 2.5-star rating is positive, indicating a higher enrollment for plans with a 3-star rating. Similarly, the effect for a 3.5-star rating is also positive and likely higher than the effect for a 3-star rating. This suggests that a higher star rating is associated with an increase in enrollment. The lines for both the 3-star and 3.5-star effects appear relatively flat across the different bandwidth values (0.1 to 0.15), with a change at 0.12. This suggests that the findings are not highly sensitive to the specific choice of bandwidth within this range.
+
+
+\newpage
+\noindent 8. Examine (graphically) whether contracts appear to manipulate the running variable. In other words, look at the distribution of the running variable before and after the relevent threshold values. What do you find?<br>
+
+
+
+```{r}
+##This is what I want to be doing but I am having issues rendering this code to a pdf from my qmd
+
+# if (!require("rdd")) install.packages("rdd")
+# library(rdd)
+
+# #| echo: false
+# #| tbl-cap: "Distribution of the Star Ratong bBfore and After the Relevent Threshold Values"
+
+# # Create density plots for the scores around the threshold of 3 stars
+# dens3 <- rddensity(ma.rd3$score, c=0)
+# rdplotdensity(dens3, ma.rd3$score)
+
+# # Create density plots for the scores around the threshold of 3.5 stars
+# dens35 <- rddensity(ma.rd35$score, c=0)
+# rdplotdensity(dens35, ma.rd35$score)
+
+```
+
+\newpage
+```{r}
+#| echo: false
+#| tbl-cap: "Distribution of the Star Rating Before and After the Relevant Threshold Values"
+
+# Create density plots for the scores around the threshold of 3 stars
+dens3 <- density(ma.rd3$score, cut = 0)
+plot(dens3, main = "Density Plot for Scores Around the Threshold of 3 Stars")
+
+# Create density plots for the scores around the threshold of 3.5 stars
+dens35 <- density(ma.rd35$score, cut = 0)
+plot(dens35, main = "Density Plot for Scores Around the Threshold of 3.5 Stars")
+```
+
+There seems to be a concentration of data points at higher values of the running variable after the threshold line, but not to an extent that would suggest that contracts manipulate the running variable. 
+
+
+
+\newpage
+\noindent 9. Similar to question 4, examine whether plans just above the threshold values have different characteristics than contracts just below the threshold values. Use HMO and Part D status as your plan characteristics.<br>
+
+
+
+```{r}
+
+## I am struggling with using HMO as a plan characteristic becuase in my separate dataset I do not have any HMO values (I would have to call them from the plan_type column of the final.data set). This is what I think I should be doing for this question, but I don't have HMO properly defined:
+
+# # Estimate the effect of receiving a 3-star versus a 2.5-star rating on HMO status
+# est3_hmo <- rdrobust(y=ma.rd3$HMO, x=ma.rd3$score, c=0,
+#                  h=0.125, p=1, kernel="uniform", vce="hc0",
+#                  masspoints="off")
+
+# summary(est3_hmo)
+
+# # Estimate the effect of receiving a 3-star versus a 2.5-star rating on Part D status
+# est3_partd <- rdrobust(y=ma.rd3$partd, x=ma.rd3$score, c=0,
+#                  h=0.125, p=1, kernel="uniform", vce="hc0",
+#                  masspoints="off")
+
+# summary(est3_partd)
+
+# # Repeat for 3.5-star rating
+# est35_hmo <- rdrobust(y=ma.rd35$HMO, x=ma.rd35$score, c=0,
+#                  h=0.125, p=1, kernel="uniform", vce="hc0",
+#                  masspoints="off")
+
+# summary(est35_hmo)
+
+# est35_partd <- rdrobust(y=ma.rd35$partd, x=ma.rd35$score, c=0,
+#                  h=0.125, p=1, kernel="uniform", vce="hc0",
+#                  masspoints="off")
+
+# summary(est35_partd)
+``` 
+
+
+
+\newpage
+\noindent 10. Summarize your findings from 5-9. What is the effect of increasing a star rating on enrollments? Briefly explain your results.<br>
+
+The analysis suggests a positive correlation between higher star ratings and increased enrollment in Medicare Advantage plans. This means that plans with higher star ratings tend to have more enrollees compared to plans with lower star ratings. The bar graphs for star rating distribution over time (2010, 2012, 2015) show a shift towards higher ratings, potentially indicating a connection to increased popularity. The line graph for the average share of Medicare Advantage enrollees shows an upward trend from 2010 to 2015, coinciding with the potential increase in enrollment for higher-rated plans. Overall, the findings suggest a potential link between higher star ratings and increased enrollment in Medicare Advantage plans.
+
+
+
